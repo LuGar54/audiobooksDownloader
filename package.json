@@ -1,0 +1,28 @@
+{
+  "name": "audiobooklistener",
+  "version": "1.0.0",
+  "description": "download audio books quickly",
+  "main": "app.js",
+  "dependencies": {
+    "async": "^3.2.3",
+    "axios": "^0.26.1",
+    "body-parser": "^1.20.0",
+    "cheerio": "^1.0.0-rc.10",
+    "ejs": "^3.1.6",
+    "express": "^4.17.3",
+    "got": "^12.0.3",
+    "helmet": "^5.0.2",
+    "jshint": "^2.13.4",
+    "request": "^2.88.2",
+    "request-promise": "^4.2.6"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/JMPerez/beats-audio-api/issues"
+  }
+}
