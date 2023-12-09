@@ -20,6 +20,16 @@ app.get('/', async function (req, res) {
   res.render(path.join(__dirname, './book-list.html'), { bookList: bookList.htmlBooks });
 });
 
+app.get('/hobbit', async function (req, res) {
+  var audioLinks = ['https://esl-bits.net/ESL.English.Learning.Audiobooks/0%20LOTR/01/design.html'];
+  await downloadLinks(audioLinks);
+  let bookList = "";
+  audioLinks.forEach((val, i, arr) => {
+    bookList += "<li>" + val + "</li>";
+  });
+  res.render(path.join(__dirname, './download.html'), { bookList, prettyTitle: req.query.prettyTitle });
+});
+
 app.get('/bookIndexer', async function (req, res) {
   const bookPreview = req.query.book;
   const prettyTitle = req.query.prettyTitle;
@@ -56,8 +66,8 @@ async function loadBookList() {
   let htmlBooks = "";
   const books = [];
 
-  await fillBookList("https://esl-bits.net/ESL.English.Learning.Audiobooks/ESL.Classic.Audiobooks.htm", books);
-  await fillBookList("https://esl-bits.net/ESL.English.Learning.Audiobooks/ESL.English.Learning.Audiobooks.html", books);
+  await fillBookList("https://esl-bits.eu/ESL.English.Learning.Audiobooks/Classics.htm", books);
+  await fillBookList("https://esl-bits.eu/ESL.English.Learning.Audiobooks/Novels.html", books);
 
   books.sort();
   books.forEach((val, i, arr) => {
@@ -115,7 +125,7 @@ async function getAllChaptersLinks(queryInput) {
       const output = $("a");
       output.each((i, element) => {
         const href = element.attribs.href;
-        if (!href.includes("http") && !href.includes("copyright")) {
+        if (!href.includes("http") && !href.includes("copyright") && !href.includes(".jpg")) {
           links.push(linkStart + href);
         }
       });
