@@ -7,6 +7,7 @@ const path = require('path');
 const helmet = require('helmet');
 const bodyParser = require('body-parser');
 const fs = require('fs');
+const { url } = require('inspector');
 
 var app = express();
 var server = http.createServer(app);
@@ -40,8 +41,9 @@ app.get('/bookIndexer', async function (req, res) {
 app.get('/download', function (req, res) {
   var response = getAllChaptersLinks(req.query.book);
   response.then(function (val) {
+
+    console.log(val);
     getDownloadLinks(val).then(async function (audioLinks) {
-      // console.log(audioLinks);
       await downloadLinks(audioLinks);
       let bookList = "";
       audioLinks.forEach((val, i, arr) => {
@@ -85,14 +87,14 @@ async function fillBookList(url, books) {
     const output = $("a");
     output.each((i, element) => {
       const href = element.attribs.href;
-      if (href.includes("preview.html")) {
+      if (href.includes("preview.html") || href.includes("0.html")) {
         let prettifiedTitle = element.children[0].data;
         let fallbackTitle = href.replace(/\./g, ' ').slice(0, href.lastIndexOf("/"));
         if (!prettifiedTitle) {
           prettifiedTitle = fallbackTitle;
         }
-        const listItem = "<li><a href=\"bookIndexer?book=https://esl-bits.net/ESL.English.Learning.Audiobooks/" + href + "&prettyTitle=" + prettifiedTitle + "\">" + prettifiedTitle + "</a></li>";
-        if (!books.some(book => book.listItem.includes(href))) {
+        const listItem = "<li><a href=\"bookIndexer?book=https://esl-bits.eu/ESL.English.Learning.Audiobooks/" + href + "&prettyTitle=" + prettifiedTitle + "\">" + prettifiedTitle + "</a></li>";
+        if (!books.some(book => book.listItem.includes(href)) || !books.some(book => book.prettifiedTitle == prettifiedTitle)) {
           books.push({ listItem, prettifiedTitle });
         }
       }
@@ -118,8 +120,15 @@ async function getBookIndexPage(previewPage) {
 
 async function getAllChaptersLinks(queryInput) {
   const links = [];
-  const resp = await rp(queryInput, (error, response, html) => {
+  var newQuery = '';
+  const resp = await rp(String(queryInput), (error, response, html) => {
     if (!error && response.statusCode == 200) {
+      
+      if (response.body.includes('URL=')) {
+        startPos = response.body.indexOf('URL=')+4;
+        newQuery = response.body.substring(startPos, response.body.indexOf('" /',startPos));
+      }
+
       const linkStart = queryInput.slice(0, queryInput.lastIndexOf("/") + 1);
       const $ = cheerio.load(html);
       const output = $("a");
@@ -131,6 +140,11 @@ async function getAllChaptersLinks(queryInput) {
       });
     }
   });
+
+  if (newQuery != '') {
+    return await getAllChaptersLinks(newQuery);
+  }
+
   return links;
 }
 
