@@ -42,6 +42,7 @@ app.get('/download', function (req, res) {
   var response = getAllChaptersLinks(req.query.book);
   response.then(function (val) {
 
+    console.log('all chapters read');
     console.log(val);
     getDownloadLinks(val).then(async function (audioLinks) {
       await downloadLinks(audioLinks);
@@ -55,7 +56,7 @@ app.get('/download', function (req, res) {
       // const time = await new Promise(r => setTimeout(r, 2000));
       // res.redirect('/');
     }).catch((reason) => {
-      console.error(reason);
+      // console.error(reason);
     });
   });
 });
@@ -134,7 +135,7 @@ async function getAllChaptersLinks(queryInput) {
       const output = $("a");
       output.each((i, element) => {
         const href = element.attribs.href;
-        if (!href.includes("http") && !href.includes("copyright") && !href.includes(".jpg")) {
+        if (!href.includes("http") && !href.includes("copyright") && !href.includes(".jpg") && !href.includes('home.html')) {
           links.push(linkStart + href);
         }
       });
@@ -170,6 +171,7 @@ async function getDownloadLinks(chaptersUrl) {
 
 async function downloadLinks(audioUrls) {
   let folder = __dirname + "/audiobooks/";
+  console.log(folder);
   if (!fs.existsSync(folder)) {
     let success = true;
     await fs.mkdir(folder, function (err) {
